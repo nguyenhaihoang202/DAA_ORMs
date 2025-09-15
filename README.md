@@ -7,7 +7,7 @@ The Stan models (BALOR and BZIOLR) are written with within-chain parallelisation
 
 Real_Benchmark folder contains the codes used in benchmarking BALOR and BZIOLR with conventional DAA methods against datasets from MicrobiomeBenchmarkData (https://www.bioconductor.org/packages/release/data/experiment/html/MicrobiomeBenchmarkData.html)
 
-Simulation folder contains all generators used in the thesis: symmetric (no net load shift), unbalanced/realistic compositional effects, and single-taxon “bloomer,” plus niche scenarios for prevalence-only and partial global load-shift (10 seeds to replicate). In this folder, the main scripts (denoted as 'Baseline') run five core methods side by side: frequentist ORM, ANCOM-BC, LinDA, BALOR, and BZIOLR. 
+Simulation folder contains all generators used in the thesis, the data are simulated from this study (https://doi.org/10.1038/nature24460): symmetric (no net load shift), unbalanced/realistic compositional effects, and single-taxon “bloomer,” plus niche scenarios for prevalence-only and partial global load-shift (10 seeds to replicate). In this folder, the main scripts (denoted as 'Baseline') run five core methods side by side: frequentist ORM, ANCOM-BC, LinDA, BALOR, and BZIOLR. 
 
 Additional methods (e.g., DESeq2, MaAsLin2, corncob, LDM) are executed in separate scripts (denoted as 'Extra') so that they can be added without refitting the Bayesian models. A dedicated merge code ('Merge') then harmonises all results by normalising column formats (estimate, SE, p, q, CI bounds, significance) and combines baseline and extras into unified result objects.
 
