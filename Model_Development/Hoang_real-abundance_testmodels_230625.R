@@ -89,8 +89,8 @@ print(results)
 
 # 15 minutes to run 
 
-# --- Improved Bayesian model ---
-mod_imp <- cmdstan_model("stan_ordinal_improved_tests.stan", cpp_options = list(stan_threads = TRUE))
+# --- Improved Bayesian model (with delta/lambda) ---
+mod_imp <- cmdstan_model("stan_ordinal_improved_2nd_hoang_230725.stan", cpp_options = list(stan_threads = TRUE))
 
 # Track execution time
 start_time_imp <- Sys.time()
@@ -141,59 +141,7 @@ results_imp <- map2_dfr(
 
 results_imp
 
-# 
-
-# --- Previously Improved Bayesian model ---
-mod_imp2 <- cmdstan_model("stan_ordinal_improved_2nd_hoang_230725.stan", cpp_options = list(stan_threads = TRUE))
-
-# Track execution time
-start_time_imp2 <- Sys.time()
-
-# Run model for each taxon
-results_imp2 <- map2_dfr(
-  .x = as.data.frame(rel_cats),
-  .y = n_cats,
-  .id = "taxon",
-  .f = function(y, K) {
-    # Stan data per taxon
-    d_imp2 <- list(
-      N = length(y),
-      K = K,
-      y = y,
-      group_0 = group_0,
-      group_1 = group_1,
-      c = quantiles[1:(K - 1)]
-    )
-    
-    # Sample from improved model
-    fit_imp2 <- mod_imp2$sample(
-      data = d_imp2,
-      chains = 4,
-      parallel_chains = 4,
-      threads_per_chain = 4,
-      iter_warmup = 500,
-      iter_sampling = 500,
-      seed = 1,
-      refresh = 0,
-      show_messages = FALSE
-    )
-    end_time_imp2 <- Sys.time()
-    print(paste("Improved model runtime:", end_time_imp2 - start_time_imp2))
-    # Extract and summarize beta_1 - beta_0
-    draws_imp2 <- fit_imp2$draws(variables = c("beta_0", "beta_1")) |> as_draws_df()
-    diff_imp2 <- draws_imp2$beta_1 - draws_imp2$beta_0
-    
-    tibble(
-      est = median(diff_imp2),
-      lwr95 = quantile(diff_imp2, 0.025),
-      upr95 = quantile(diff_imp2, 0.975),
-      p_lt_0 = mean(diff_imp2 < 0),
-      p_gt_0 = mean(diff_imp2 > 0)
-    )
-  }
-)
-
-results_imp2
+# 18 minutes to run
 
 # --- Frequentist model using rms::orm ---
 run_orm <- function(abundance, metadata, formula) {
@@ -250,25 +198,17 @@ res_imp_clean <- results_imp |>
          improved_lwr = lwr95,
          improved_upr = upr95)
 
-# Improved Bayesian results (between)
-res_imp2_clean <- results_imp2 |>
-  select(taxon,
-         improved2_estimate = est,
-         improved2_lwr = lwr95,
-         improved2_upr = upr95)
-
 # --- Join all three into one comparison table ---
 comparison_table <- res_freq_clean |>
   left_join(res_simplified_clean, by = "taxon") |>
-  left_join(res_imp_clean, by = "taxon") |>
-  left_join(res_imp2_clean, by = "taxon")
+  left_join(res_imp_clean, by = "taxon")
 
 comparison_table <- comparison_table |>
   select(
     taxon,
-    frequentist_estimate, simplified_estimate, improved_estimate, improved2_estimate,
-    frequentist_lwr,      simplified_lwr,      improved_lwr, improved2_lwr,
-    frequentist_upr,      simplified_upr,      improved_upr, improved2_upr
+    frequentist_estimate, simplified_estimate, improved_estimate,
+    frequentist_lwr,      simplified_lwr,      improved_lwr,
+    frequentist_upr,      simplified_upr,      improved_upr
   )
 comparison_table
 
@@ -278,7 +218,7 @@ comparison_table
 comparison_long <- comparison_table |>
   pivot_longer(cols = -taxon,
                names_to = c("model", ".value"),
-               names_pattern = "(frequentist|simplified|improved|improved2)_(estimate|lwr|upr)")
+               names_pattern = "(frequentist|simplified|improved)_(estimate|lwr|upr)")
 
 # Plot
 ggplot(comparison_long, aes(x = estimate, y = taxon, color = model)) +
