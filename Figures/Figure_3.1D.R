@@ -1,5 +1,5 @@
 # ================================================================
-# Detection-bias ("Biased Scenario")
+# Bloomer Scenario
 # ================================================================
 
 suppressPackageStartupMessages({
@@ -10,7 +10,7 @@ suppressPackageStartupMessages({
 })
 
 # --------------------------- Config ------------------------------
-ALPHA_MAIN <- 0.1                
+ALPHA_MAIN <- 0.2  
 
 # Methods
 method_levels <- rev(c("BALOR","BZIOLR","ORM","ANCOM-BC","LinDA",
@@ -79,8 +79,10 @@ normalize_cols <- function(df, Z = qnorm(1 - ALPHA_MAIN/2)) {
 round_up_to <- function(x, step) step * ceiling(x / step)
 
 # ----------------------- File discovery --------------------------
-merged_files <- Sys.glob("bias_ADD_ALL_N*_M*_seed*.RData") %>% sort()
-base_files   <- Sys.glob("bias_N*_M*_seed*.RData")         %>% sort()
+# Bloomer scenario files
+
+merged_files <- Sys.glob("bloomer_ADD_ALL_N*_M*_seed*.RData") %>% sort()
+base_files   <- Sys.glob("bloomer_N*_M*_seed*.RData")         %>% sort()
 stopifnot(length(merged_files) > 0, length(base_files) > 0)
 
 seed_of <- function(x) as.integer(str_match(basename(x), "seed(\\d{3})\\.RData$")[,2])
@@ -147,7 +149,7 @@ stopifnot("true_effect" %in% names(res_all))
 
 # Tag scenario if missing
 if (!"scenario" %in% names(res_all)) {
-  res_all <- res_all %>% mutate(scenario = "Detection-bias")
+  res_all <- res_all %>% mutate(scenario = "Bloomer")
 }
 
 # -------------------- Bayes significance grid ---------------------
@@ -187,10 +189,10 @@ mark_signif <- function(df, alpha) {
 }
 
 # --------------- Per-seed metrics at α = ALPHA_MAIN --------------
-SCEN <- "Detection-bias"
-res_bias <- res_all %>% filter(scenario == SCEN)
+SCEN <- "Bloomer"
+res_bloomer <- res_all %>% filter(scenario == SCEN)
 
-perf_bias <- res_bias %>%
+perf_bloomer <- res_bloomer %>%
   mark_signif(ALPHA_MAIN) %>%
   filter(!is.na(sgn)) %>%
   mutate(
@@ -211,13 +213,14 @@ perf_bias <- res_bias %>%
 # ---------------- Axis limits ------------------------
 # FDR: ticks every 0.1
 fdr_upper  <- 1
-fdr_breaks <- seq(0, fdr_upper, by = 0.1)
+fdr_breaks <- seq(0, 1, by = 0.1)
 
-# Power: ticks every 0.2
+# Power: ticks every 0.1
 power_upper  <- 1
-power_breaks <- seq(0, power_upper, by = 0.1)
+power_breaks <- seq(0, 1, by = 0.1)
+
 # ---------------- Build the two panels -----
-p_fdr <- ggplot(perf_bias, aes(x = fdr, y = method, fill = method, color = method)) +
+p_fdr <- ggplot(perf_bloomer, aes(x = fdr, y = method, fill = method, color = method)) +
   geom_boxplot(outlier.shape = NA, alpha = 0.28, width = 0.6, linewidth = 0.35) +
   geom_jitter(height = 0.16, width = 0, size = 1.1, alpha = 0.85) +
   scale_fill_manual(values = method_colors, drop = FALSE) +
@@ -227,19 +230,19 @@ p_fdr <- ggplot(perf_bias, aes(x = fdr, y = method, fill = method, color = metho
   theme_classic(base_size = 11) +
   theme(legend.position = "none", axis.text.y = element_text(size = 9))
 
-p_pow <- ggplot(perf_bias, aes(x = power, y = method, fill = method, color = method)) +
+p_pow <- ggplot(perf_bloomer, aes(x = power, y = method, fill = method, color = method)) +
   geom_boxplot(outlier.shape = NA, alpha = 0.28, width = 0.6, linewidth = 0.35) +
   geom_jitter(height = 0.16, width = 0, size = 1.1, alpha = 0.85) +
   scale_fill_manual(values = method_colors, drop = FALSE) +
   scale_color_manual(values = method_colors, drop = FALSE) +
   scale_x_continuous(limits = c(0, power_upper), breaks = power_breaks) +
-  labs(x = sprintf("Power", ALPHA_MAIN), y = NULL) +
+  labs(x = "Power", y = NULL) +
   theme_classic(base_size = 11) +
   theme(legend.position = "none", axis.text.y = element_text(size = 9))
 
 # -------- Top title cell with its own box --------
 p_title <- ggplot() +
-  annotate("text", x = 0, y = 0, label = "Detection-Bias Scenario",
+  annotate("text", x = 0, y = 0, label = "Bloomer Scenario",
            fontface = "bold", size = 4.2) +
   annotate("rect", xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf,
            fill = NA, color = "black", linewidth = 0.6) +
@@ -259,5 +262,5 @@ combined <- combined +
 
 # ------------------------------ Save ------------------------------
 dir.create("figures", showWarnings = FALSE)
-ggsave("figures/fig4_bias_combined.png", combined, width = 10, height = 5, dpi = 300)
-message("Saved: figures/fig4_bias_combined.png")
+ggsave("figures/fig4_bloomer_combined.png", combined, width = 10, height = 5, dpi = 300)
+message("Saved: figures/fig4_bloomer_combined.png")
