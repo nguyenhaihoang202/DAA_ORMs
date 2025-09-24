@@ -9,7 +9,9 @@ The Stan models (BALOR and BZIOLR) are written with within-chain parallelisation
 
 The 'Simulation' folder contains all generators used in the thesis, the data are simulated from this study (https://doi.org/10.1038/nature24460), with 10 seeds to replicate. In this folder, the main scripts (denoted as 'Baseline') run five core methods side by side: frequentist ORM, ANCOM-BC, LinDA, BALOR, and BZIOLR. 
 
-The 'Data Curation' and 'Model Development' folders are for some code scripts I worked on throughout the 4-month internship but were not included in the thesis.
+The 'Model Development' folder is for some code scripts I worked on throughout the 4-month internship but were not included in the thesis.
+
+The 'Data Curation' contain the files to generate the simulation backbone.
 
 The 'Figures' folder contains all the code scripts to generate the figures in the thesis.
 
