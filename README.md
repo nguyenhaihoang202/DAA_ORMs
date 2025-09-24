@@ -11,7 +11,7 @@ The 'Simulation' folder contains all generators used in the thesis, the data are
 
 The 'Data Curation' and 'Model Development' folders are for some code scripts I worked on throughout the 4-month internship but were not included in the thesis.
 
-The 'Figure' folder contains all the code scripts to generate the figures in the thesis.
+The 'Figures' folder contains all the code scripts to generate the figures in the thesis.
 
 Additional methods (e.g., DESeq2, MaAsLin2, corncob, LDM) are executed in separate scripts (denoted as 'Extra') so that they can be added without refitting the Bayesian models. A dedicated merge code ('Merge') then harmonises all results by normalising column formats (estimate, SE, p, q, CI bounds, significance) and combines baseline and extras into unified result objects.
 
