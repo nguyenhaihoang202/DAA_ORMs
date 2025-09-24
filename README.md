@@ -5,9 +5,13 @@ This project adapted some code scripts from Juho Pelto (jepelt@utu.fi), and the 
 
 The Stan models (BALOR and BZIOLR) are written with within-chain parallelisation enabled, so they can take advantage of multi-threading via CmdStanR. This allows faster sampling on modern multi-core CPUs, especially when analysing many taxa simultaneously. Thread usage can be controlled through the threads_per_chain argument in CmdStanR, and all simulation and benchmark scripts in this repository are pre-configured to exploit this option.
 
-Real_Benchmark folder contains the codes used in benchmarking BALOR and BZIOLR with conventional DAA methods against datasets from MicrobiomeBenchmarkData (https://www.bioconductor.org/packages/release/data/experiment/html/MicrobiomeBenchmarkData.html)
+'Real_Benchmark' folder contains the codes used in benchmarking BALOR and BZIOLR with conventional DAA methods against datasets from MicrobiomeBenchmarkData (https://www.bioconductor.org/packages/release/data/experiment/html/MicrobiomeBenchmarkData.html)
 
-The Simulation folder contains all generators used in the thesis, the data are simulated from this study (https://doi.org/10.1038/nature24460), with 10 seeds to replicate. In this folder, the main scripts (denoted as 'Baseline') run five core methods side by side: frequentist ORM, ANCOM-BC, LinDA, BALOR, and BZIOLR. 
+The 'Simulation' folder contains all generators used in the thesis, the data are simulated from this study (https://doi.org/10.1038/nature24460), with 10 seeds to replicate. In this folder, the main scripts (denoted as 'Baseline') run five core methods side by side: frequentist ORM, ANCOM-BC, LinDA, BALOR, and BZIOLR. 
+
+The 'Data Curation' and 'Model Development' folders are for some code scripts I worked on throughout the 4-month internship but were not included in the thesis.
+
+The 'Figure' folder contains all the code scripts to generate the figures in the thesis.
 
 Additional methods (e.g., DESeq2, MaAsLin2, corncob, LDM) are executed in separate scripts (denoted as 'Extra') so that they can be added without refitting the Bayesian models. A dedicated merge code ('Merge') then harmonises all results by normalising column formats (estimate, SE, p, q, CI bounds, significance) and combines baseline and extras into unified result objects.
 
