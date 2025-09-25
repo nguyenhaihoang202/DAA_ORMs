@@ -1,10 +1,5 @@
 // ============================================================================
 // Bayesian ordinal logistic model for microbiome DAA
-// - Ordered logistic (proportional odds) on 4 bins with taxon-specific group effects beta[m].
-// - Cut-points are estimated separately per taxon (no global template/scale).
-// - Global asymmetric Laplace prior to reflect compositional shifts.
-// - No global offset or zero inflation layer.
-// - Per-taxon cutpoints absorb baseline location; beta shifts odds between groups.
 // ============================================================================
 
 functions {
@@ -17,14 +12,6 @@ functions {
   }
 
   // Parallelizable partial log-likelihood over a slice of observations.
-  // Arguments:
-  //   y_slice    : integer outcomes in {1, ..., K}, sliced for reduce_sum
-  //   start, end : indices mapping the slice back to full data
-  //   taxon_idx  : taxon index per observation (1..M)
-  //   group      : group indicator per observation in {0,1}
-  //   c_taxon    : per-taxon cutpoints (vector[K-1] per taxon)
-  //   beta       : per-taxon group effects for the ordinal part
-  //
   // Likelihood:
   //   Ordered logistic. Group is centered as g = group - 0.5.
   real partial_log_lik(array[] int y_slice, int start, int end,
@@ -106,3 +93,4 @@ generated quantities {
   beta_center_mean = mean(beta);
   for (m in 1:M) beta_centered_mean[m] = beta[m] - beta_center_mean;
 }
+
