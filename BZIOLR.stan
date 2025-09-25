@@ -1,10 +1,5 @@
 // ============================================================================
-  // Bayesian zero-inflated ordered logistic model - revised 
-// Key changes:
-  //   1) Per-taxon ordered cutpoints c_taxa[m], hierarchically shrunk to a template.
-//   2) Zero inflation only as baseline per-taxon structural-zero prob (no group slope).
-//   3) Tighter global shrinkage for beta: beta_mu ~ N(0, 0.3), beta_sigma ~ half-N(0.3).
-//   4) Soft compositional regularization: mean(beta) ~ N(0, 0.3).
+  // Bayesian zero-inflated ordered logistic model 
 // ============================================================================
   
   functions {
@@ -104,3 +99,4 @@ generated quantities {
   real beta_center_mean = mean(beta);
   for (m in 1:M) beta_centered_mean[m] = beta[m] - beta_center_mean;
 }
+
