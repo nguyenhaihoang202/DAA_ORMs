@@ -1,5 +1,5 @@
 # =========================================================
-# Figure 3.2 — HMP Gingival Subset: Correct vs Wrong across α 
+# Figure 3.2A — HMP Gingival Subset: Correct vs Wrong across α 
 # =========================================================
 library(tidyverse)
 library(patchwork)
@@ -7,21 +7,8 @@ library(patchwork)
 # ---- Methods ----
 method_levels <- c("BALOR","BZIOLR","ORM", "ANCOM-BC","LinDA","DESeq2","MaAsLin2","corncob","LDM")
 
-# ---- Color palette ----
-method_colors <- c(
-  BALOR     = "#045275",   
-  BZIOLR    = "#089099",   
-  ORM       = "#7CCBA2",  
-  "ANCOM-BC"= "#FCDE9C", 
-  LinDA     = "#F0746E", 
-  DESeq2    = "#7C1D6F", 
-  MaAsLin2  = "#ED85B0", 
-  corncob   = "#A3A500FF", 
-  LDM       = "#EEB849"  
-)
-
 # ---- Load saved results for HMP ----
-load("hmp_v35subset_140925_data.RData")
+load("True_HMP.RData")
 grid_all <- side_by_side_grid
 
 # ---- Harmonize method names ----
@@ -29,15 +16,15 @@ grid_all <- grid_all %>%
   mutate(model = tolower(model)) %>%
   mutate(model = recode(
     model,
-    "balor" = "BALOR",
-    "orm" = "ORM",
-    "ziolr" = "BZIOLR",
+    "balor"       = "BALOR",
+    "bziolr"      = "BZIOLR",
+    "orm"         = "ORM",
+    "ancombc"     = "ANCOM-BC",
+    "linda"       = "LinDA",
+    "deseq2"      = "DESeq2",
+    "maaslin2"    = "MaAsLin2",
     "corncob_lrt" = "corncob",
-    "linda" = "LinDA",
-    "ldm" = "LDM",
-    'deseq2'= "DESeq2",
-    "maaslin2" = "MaAsLin2",
-    "ancombc" = "ANCOM-BC"
+    "ldm"         = "LDM"
   ))
 
 alpha_keep <- c(0.05, 0.10, 0.20)
@@ -59,22 +46,27 @@ int_breaks <- function(max_n) {
 
 # ---- Limits (independent scales per row) ----
 tp_max <- max(df$TP, na.rm = TRUE)
-tp_lim <- c(0, tp_max * 1.1)
+tp_lim <- c(0, tp_max * 1.10)
 
 fp_max <- max(df$FP, na.rm = TRUE)
-fp_lim <- c(fp_max * 1.28, 0)   
+fp_lim <- c(fp_max * 1.28, 0)
 fp_breaks <- int_breaks(fp_max)
 
+# ---- Fixed gold bars ----
+bar_params <- list(
+  fill = "#F7B500",     # <- requested color
+  width = 0.72,
+  color = "black",
+  linewidth = 0.25,
+  alpha = 0.90
+)
 
-bar_params <- list(width = 0.72, color = "black", linewidth = 0.25, alpha = 0.90)
-
-facet_opt <- facet_grid(. ~ alpha_f, scales = "fixed")  
+facet_opt <- facet_grid(. ~ alpha_f, scales = "fixed")
 
 # ---------- TOP: TP row ----------
-p_tp <- ggplot(df, aes(x = method, y = TP, fill = method)) +
-  do.call(geom_col, bar_params) +        
+p_tp <- ggplot(df, aes(x = method, y = TP)) +
+  do.call(geom_col, bar_params) +
   facet_opt +
-  scale_fill_manual(values = method_colors, limits = method_levels, drop = FALSE) +
   scale_y_continuous(limits = tp_lim, expand = expansion(mult = c(0, .05))) +
   labs(y = "Correct Calls (TP)", x = NULL) +
   theme_minimal(base_size = 12) +
@@ -93,17 +85,15 @@ p_tp <- ggplot(df, aes(x = method, y = TP, fill = method)) +
   )
 
 # ---------- BOTTOM: FP row ----------
-p_fp <- ggplot(df, aes(x = method, y = FP, fill = method)) +
-  do.call(geom_col, bar_params) +         
+p_fp <- ggplot(df, aes(x = method, y = FP)) +
+  do.call(geom_col, bar_params) +
   facet_opt +
-  scale_fill_manual(values = method_colors, limits = method_levels, drop = FALSE, name = NULL) +
   scale_y_reverse(limits = fp_lim, breaks = fp_breaks,
                   expand = expansion(mult = c(0, .05))) +
   labs(y = "Wrong Calls (FP)", x = "DA Methods") +
   theme_minimal(base_size = 12) +
   theme(
-    legend.position = "bottom",
-    legend.box = "vertical",
+    legend.position = "none",
     panel.grid.minor = element_blank(),
     panel.grid.major.x = element_blank(),
     panel.grid.major.y = element_line(color = "grey80", linewidth = 0.4),
@@ -115,15 +105,15 @@ p_fp <- ggplot(df, aes(x = method, y = FP, fill = method)) +
     axis.title.x = element_text(size = 16)
   )
 
+# Gap between rows
 gap_pt <- 2
 p_tp <- p_tp + theme(plot.margin = margin(5.5, 5.5, gap_pt, 5.5))
 p_fp <- p_fp + theme(plot.margin = margin(gap_pt, 5.5, 5.5, 5.5))
-
 
 # ---------- Compose ----------
 fig_4_2_hmp <- p_tp / p_fp + plot_layout(heights = c(2, 1))
 print(fig_4_2_hmp)
 
 # ---- Save ----
-ggsave("Figure_3.2A.png", fig_4_2_hmp,
+ggsave("Figure 3.2A.png", fig_4_2_hmp,
        width = 11, height = 6.2, units = "in", dpi = 300)

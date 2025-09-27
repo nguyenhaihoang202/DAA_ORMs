@@ -7,7 +7,7 @@ library(patchwork)
 # ---- Methods ----
 method_levels <- c("BALOR","BZIOLR","ORM","ANCOM-BC","LinDA","DESeq2","MaAsLin2","corncob","LDM")
 
-# ---- Color palette ----
+# ---- (palette kept for reference; unused now) ----
 method_colors <- c(
   BALOR     = "#045275",   
   BZIOLR    = "#089099",   
@@ -21,7 +21,7 @@ method_colors <- c(
 )
 
 # ---- Load saved results for Ravel ----
-load("ravel_040925_data.RData")
+load("True_Ravel.RData")
 grid_all <- side_by_side_grid
 
 # ---- Harmonize method names ----
@@ -30,7 +30,7 @@ grid_all <- grid_all %>%
   mutate(model = recode(
     model,
     "balor"       = "BALOR",
-    "ziolr"      = "BZIOLR",
+    "bziolr"      = "BZIOLR",
     "orm"         = "ORM",
     "ancombc"     = "ANCOM-BC",
     "linda"       = "LinDA",
@@ -54,15 +54,22 @@ df <- grid_all %>%
 # Limits (independent scales per row) 
 tp_max <- max(df$TP, na.rm = TRUE); tp_lim <- c(0, tp_max * 1.05)
 
-bar_params <- list(width = 0.72, color = "black", linewidth = 0.25, alpha = 0.90)
+# --- Fixed blue bars here ---
+bar_params <- list(
+  fill = "#00A9E0",              # <-- single blue for all bars
+  width = 0.72,
+  color = "black",
+  linewidth = 0.25,
+  alpha = 0.90
+)
 
 facet_opt <- facet_grid(. ~ alpha_f, scales = "fixed")  # or "free_y" in BOTH figures
 
 # ---------- TOP: TP row ----------
-p_tp <- ggplot(df, aes(x = method, y = TP, fill = method)) +
-  do.call(geom_col, bar_params) +         
+p_tp <- ggplot(df, aes(x = method, y = TP)) +
+  do.call(geom_col, bar_params) +
   facet_opt +
-  scale_fill_manual(values = method_colors, limits = method_levels, drop = FALSE) +
+  # (no scale_fill_* since fill is fixed, not mapped)
   scale_y_continuous(limits = tp_lim, expand = expansion(mult = c(0, .05))) +
   labs(y = "Correct Calls (TP)", x = NULL) +
   theme_minimal(base_size = 12) +
@@ -81,17 +88,15 @@ p_tp <- ggplot(df, aes(x = method, y = TP, fill = method)) +
   )
 
 # ---------- BOTTOM: FP row ----------
-p_fp <- ggplot(df, aes(x = method, y = FP, fill = method)) +
-  do.call(geom_col, bar_params) +         
+p_fp <- ggplot(df, aes(x = method, y = FP)) +
+  do.call(geom_col, bar_params) +
   facet_opt +
-  scale_fill_manual(values = method_colors, limits = method_levels, drop = FALSE, name = NULL) +
-  scale_y_reverse(limits = c(2,0), breaks = 0:2,
+  scale_y_reverse(limits = c(2, 0), breaks = 0:2,
                   expand = expansion(mult = c(0, .05))) + 
   labs(y = "Wrong Calls (FP)", x = "DA Methods") +
   theme_minimal(base_size = 12) +
   theme(
-    legend.position = "bottom",
-    legend.box = "vertical",
+    legend.position = "none",    # no legend since fill isn't mapped
     panel.grid.minor = element_blank(),
     panel.grid.major.x = element_blank(),
     panel.grid.major.y = element_line(color = "grey80", linewidth = 0.4),
@@ -112,5 +117,5 @@ fig_4_1_ravel <- p_tp / p_fp + plot_layout(heights = c(2, 1))
 print(fig_4_1_ravel)
 
 # ---- Save ----
-ggsave("Figure_3.3A.png", fig_4_1_ravel,
+ggsave("Figure 3.3A.png", fig_4_1_ravel,
        width = 11, height = 6.2, units = "in", dpi = 300)
