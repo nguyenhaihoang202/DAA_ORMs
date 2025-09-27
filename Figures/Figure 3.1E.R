@@ -246,7 +246,7 @@ p_pow <- ggplot(perf_real, aes(x = power, y = method, fill = method, color = met
 
 # -------- Top title cell with its own box --------
 p_title <- ggplot() +
-  annotate("text", x = 0, y = 0, label = "Realistic Scenario",
+  annotate("text", x = 0, y = 0, label = "Realistic-Calibrated Scenario",
            fontface = "bold", size = 4.2) +
   annotate("rect", xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf,
            fill = NA, color = "black", linewidth = 0.6) +
@@ -268,3 +268,4 @@ combined <- combined +
 dir.create("figures", showWarnings = FALSE)
 ggsave("figures/fig4_realistic_combined.png", combined, width = 10, height = 5, dpi = 300)
 message("Saved: figures/fig4_realistic_combined.png")
+
